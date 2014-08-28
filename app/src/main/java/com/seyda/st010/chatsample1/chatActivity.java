@@ -37,8 +37,8 @@ public class chatActivity extends Activity {
     public static final String HOST = "217.78.110.158";
     public static final int PORT = 5222;
     public static final String SERVICE = "localhost";
-    public static final String USERNAME = "seyda";
-    public static final String PASSWORD = "123456";
+    public String USERNAME;
+    public String PASSWORD;
 
     private XMPPConnection connection;
     private ArrayList<String> messages = new ArrayList<String>();
@@ -54,7 +54,8 @@ public class chatActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-
+        USERNAME = getIntent().getStringExtra("username");
+        PASSWORD = getIntent().getStringExtra("userPassword");
 
         //recipient = (EditText) this.findViewById(R.id.toET);
         textMessage = (EditText) this.findViewById(R.id.editText);
