@@ -9,6 +9,7 @@ import android.content.ContentResolver;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -38,6 +39,7 @@ public class LoginActivity extends Activity {
 
     private EditText userName;
     private EditText password;
+    public static final String MyPREFERENCES = "MyPrefs" ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +58,13 @@ public class LoginActivity extends Activity {
 
                 String username = userName.getText().toString();
                 String userPassword = password.getText().toString();
+
+                SharedPreferences sharedpreferences;
+                sharedpreferences = getSharedPreferences(MyPREFERENCES, SplashActivity.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedpreferences.edit();
+                editor.putString("username",username);
+                editor.putString("userPassword",userPassword);
+                editor.commit();
 
                 Intent activityChangeIntent = new Intent(LoginActivity.this, chatActivity.class);
                 activityChangeIntent.putExtra("username",username);
