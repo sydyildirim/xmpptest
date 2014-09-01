@@ -51,14 +51,21 @@ public class SplashActivity extends Activity {
             super.onPostExecute(result);
             // After completing http call
             // will close this activity and lauch main activity
+
+            ServerConnection connect = new ServerConnection("217.78.110.158",5222,"localhost");
+            connect.connect();
+
             if (result == null) {
                 Intent startLoginActivity = new Intent(SplashActivity.this, LoginActivity.class);
                 startActivity(startLoginActivity);
             }else {
 
-                Intent startChatActivity = new Intent(SplashActivity.this, chatActivity.class);
+                Intent startChatActivity = new Intent(SplashActivity.this, ChatListActivity.class);
                 startChatActivity.putExtra("username", sharedpreferences.getString("username", ""));
                 startChatActivity.putExtra("userPassword", sharedpreferences.getString("userPassword", ""));
+
+                //check if user already login
+                connect.Xmpplogin(sharedpreferences.getString("username", ""),sharedpreferences.getString("userPassword", ""));
                 startActivity(startChatActivity);
             }
 

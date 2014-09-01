@@ -2,6 +2,8 @@ package com.seyda.st010.chatsample1;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -39,12 +41,14 @@ public class chatActivity extends Activity {
     public static final String SERVICE = "localhost";
     public String USERNAME;
     public String PASSWORD;
+    SharedPreferences sharedpreferences;
+    public static final String MyPREFERENCES = "MyPrefs" ;
 
-    private XMPPConnection connection;
+    public static XMPPConnection connection;
     private ArrayList<String> messages = new ArrayList<String>();
     private Handler mHandler = new Handler();
 
-    private EditText recipient;
+    //private EditText recipient;
     private EditText textMessage;
     private ListView listview;
 
@@ -54,8 +58,12 @@ public class chatActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        USERNAME = getIntent().getStringExtra("username");
-        PASSWORD = getIntent().getStringExtra("userPassword");
+        sharedpreferences = getSharedPreferences(MyPREFERENCES, SplashActivity.MODE_PRIVATE);
+
+        USERNAME = sharedpreferences.getString("username","");
+        PASSWORD =  sharedpreferences.getString("userPassword","");
+       // USERNAME = getIntent().getStringExtra("username");
+       // PASSWORD = getIntent().getStringExtra("userPassword");
 
         //recipient = (EditText) this.findViewById(R.id.toET);
         textMessage = (EditText) this.findViewById(R.id.editText);
@@ -66,7 +74,13 @@ public class chatActivity extends Activity {
         Button send = (Button) this.findViewById(R.id.button);
         send.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                String to = "burcu@localhost"; //recipient.getText().toString();
+                String to;
+                if (getIntent().getStringExtra("recipient")== null)
+                 to = "burcu@localhost"; //recipient.getText().toString();
+                else
+                 to = getIntent().getStringExtra("recipient");
+                Log.e("rescipient= ", to);
+
                 String text = textMessage.getText().toString();
 
                 textMessage.setText(null);
@@ -80,13 +94,14 @@ public class chatActivity extends Activity {
                     messages.add(text);
                     setListAdapter();
                 }
+
+
             }
         });
 
         connect();
 
     }
-
     /**
      * Called by Settings dialog when a connection is establised with the XMPP
      * server
@@ -127,7 +142,6 @@ public class chatActivity extends Activity {
         getMenuInflater().inflate(R.menu.chat, menu);
         return true;
     }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -169,20 +183,6 @@ public class chatActivity extends Activity {
                 ConnectionConfiguration connConfig = new ConnectionConfiguration(
                         HOST, PORT, SERVICE);
                 XMPPConnection connection = new XMPPConnection(connConfig);
-              /*  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                    connConfig.setTruststoreType("AndroidCAStore");
-                    connConfig.setTruststorePassword(null);
-                    connConfig.setTruststorePath(null);
-                } else {
-                    connConfig.setTruststoreType("BKS");
-                    String path = System.getProperty("javax.net.ssl.trustStore");
-                    if (path == null)
-                        path = System.getProperty("java.home") + File.separator + "etc"
-                                + File.separator + "security" + File.separator
-                                + "cacerts.bks";
-                    connConfig.setTruststorePath(path);
-                }
-                */
 
                 try {
                     connection.connect();

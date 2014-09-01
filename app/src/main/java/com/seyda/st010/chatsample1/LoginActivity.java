@@ -18,6 +18,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -60,17 +61,23 @@ public class LoginActivity extends Activity {
                 String userPassword = password.getText().toString();
 
                 SharedPreferences sharedpreferences;
-                sharedpreferences = getSharedPreferences(MyPREFERENCES, SplashActivity.MODE_PRIVATE);
+                sharedpreferences = getSharedPreferences(MyPREFERENCES, SplashActivity.MODE_PRIVATE); //buraya bak
                 SharedPreferences.Editor editor = sharedpreferences.edit();
                 editor.putString("username",username);
                 editor.putString("userPassword",userPassword);
                 editor.commit();
 
-                Intent activityChangeIntent = new Intent(LoginActivity.this, chatActivity.class);
+                Log.i("username= ", sharedpreferences.getString("username",""));
+                Log.i("password= ", sharedpreferences.getString("userPassword",""));
+                Intent activityChangeIntent = new Intent(LoginActivity.this, ChatListActivity.class);
                 activityChangeIntent.putExtra("username",username);
                 activityChangeIntent.putExtra("userPassword",userPassword);
+                activityChangeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                activityChangeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                //YENİ
 
-                LoginActivity.this.startActivity(activityChangeIntent);
+
+                startActivity(activityChangeIntent);
             }
         });
 

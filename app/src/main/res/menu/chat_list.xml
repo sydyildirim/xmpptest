@@ -1,0 +1,23 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.seyda.st010.chatsample1.ChatListActivity" >
+    <item android:id="@+id/action_settings"
+        android:title="@string/action_settings"
+        android:orderInCategory="100"
+         />
+    <item
+        android:id="@+id/action_about"
+        android:orderInCategory="2"
+
+        android:title="About"/>
+    <item
+        android:id="@+id/logout"
+        android:orderInCategory="3"
+
+        android:title="Logout"/>
+    <item
+        android:id="@+id/buddies"
+        android:orderInCategory="4"
+
+        android:title="Buddy List"/>
+</menu>
