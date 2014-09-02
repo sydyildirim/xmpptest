@@ -5,5 +5,6 @@ android:id="@+id/text1"
 android:layout_width="fill_parent"
 android:layout_height="wrap_content"
 android:singleLine="false"
+android:background="@drawable/Penguin"
 android:textStyle="bold" />
 
