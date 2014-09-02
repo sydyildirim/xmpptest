@@ -38,7 +38,7 @@ public class ChatListActivity extends Activity {
 
                     connect = new ServerConnection("217.78.110.158",5222,"localhost");
 
-                    connect.Xmpplogin(USERNAME, PASSWORD);
+                    connect.connect(USERNAME, PASSWORD);
 
             }
             });

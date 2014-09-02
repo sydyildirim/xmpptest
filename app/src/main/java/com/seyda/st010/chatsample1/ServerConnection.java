@@ -49,8 +49,10 @@ public class ServerConnection {
         this.connection = connection;
     }
 
-    public void connect() {
+    public void connect(String username, String password) {
 
+        USERNAME = username;
+        PASSWORD = password;
         Thread t = new Thread(new Runnable() {
 
             @Override
@@ -71,14 +73,54 @@ public class ServerConnection {
                     setConnection(null);
                 }
                 Log.e("Service Name", connConfig.getServiceName());
-                setConnection(connection);
-               if(USERNAME!=null){
-                   try {
-                       connection.login(USERNAME, PASSWORD);
-                   } catch (XMPPException e) {
-                       e.printStackTrace();
-                   }
-               }
+                try {
+                    //SASLAuthentication.supportSASLMechanism("PLAIN", 0);
+
+                    connection.login(USERNAME, PASSWORD);
+                    Log.i("XMPPChatDemoActivity",
+                            "Logged in as " + connection.getUser());
+
+                    // Set the status to available
+                    Presence presence = new Presence(Presence.Type.available);
+                    connection.sendPacket(presence);
+                    setConnection(connection);
+
+                    Roster roster = connection.getRoster();
+                    Collection<RosterEntry> entries = roster.getEntries();
+                    for (RosterEntry entry : entries) {
+                        Log.d("XMPPChatDemoActivity",
+                                "--------------------------------------");
+                        Log.d("XMPPChatDemoActivity", "RosterEntry " + entry);
+                        Log.d("XMPPChatDemoActivity",
+                                "User: " + entry.getUser());
+                        Log.d("XMPPChatDemoActivity",
+                                "Name: " + entry.getName());
+                        Log.d("XMPPChatDemoActivity",
+                                "Status: " + entry.getStatus());
+                        Log.d("XMPPChatDemoActivity",
+                                "Type: " + entry.getType());
+                        Presence entryPresence = roster.getPresence(entry
+                                .getUser());
+
+                        Log.d("XMPPChatDemoActivity", "Presence Status: "
+                                + entryPresence.getStatus());
+                        Log.d("XMPPChatDemoActivity", "Presence Type: "
+                                + entryPresence.getType());
+                        Presence.Type type = entryPresence.getType();
+                        if (type == Presence.Type.available)
+                            Log.d("XMPPChatDemoActivity", "Presence AVIALABLE");
+                        Log.d("XMPPChatDemoActivity", "Presence : "
+                                + entryPresence);
+
+                    }
+                } catch (XMPPException ex) {
+                    Log.e("XMPPChatDemoActivity", "Failed to log in as "
+                            + USERNAME);
+                    Log.e("XMPPChatDemoActivity", ex.toString());
+                    setConnection(null);
+                }
+
+
             }
         });
         t.start();
@@ -86,8 +128,7 @@ public class ServerConnection {
     }
     public void Xmpplogin(String username, String password){
 
-        USERNAME = username;
-        PASSWORD = password;
+
         try {
             //SASLAuthentication.supportSASLMechanism("PLAIN", 0);
 

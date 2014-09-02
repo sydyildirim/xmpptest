@@ -52,8 +52,8 @@ public class SplashActivity extends Activity {
             // After completing http call
             // will close this activity and lauch main activity
 
-            ServerConnection connect = new ServerConnection("217.78.110.158",5222,"localhost");
-            connect.connect();
+             ServerConnection connect = new ServerConnection("217.78.110.158",5222,"localhost");
+            //connect.connect();
 
             if (result == null) {
                 Intent startLoginActivity = new Intent(SplashActivity.this, LoginActivity.class);
@@ -65,7 +65,7 @@ public class SplashActivity extends Activity {
                 startChatActivity.putExtra("userPassword", sharedpreferences.getString("userPassword", ""));
 
                 //check if user already login
-                connect.Xmpplogin(sharedpreferences.getString("username", ""),sharedpreferences.getString("userPassword", ""));
+                connect.connect(sharedpreferences.getString("username", ""),sharedpreferences.getString("userPassword", ""));
                 startActivity(startChatActivity);
             }
 
