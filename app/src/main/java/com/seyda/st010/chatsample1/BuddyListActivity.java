@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smackx.packet.VCard;
 import org.jivesoftware.smackx.provider.VCardProvider;
@@ -30,7 +31,7 @@ public class BuddyListActivity extends Activity {
     ListView list;
     Roster roster;
     static Buddy[] buddyList;
-
+    User users;
     public void onCreate(Bundle b) {
         super.onCreate(b);
         setContentView(R.layout.activity_buddy_list);
@@ -64,6 +65,14 @@ public class BuddyListActivity extends Activity {
                 int len = img.length;
                 bud.img = BitmapFactory.decodeByteArray(img, 0, len);
             }
+
+            //ADD BUDDY TO DB
+            users.setUsername(entry.getUser());
+            Presence entryPresence = roster.getPresence(entry
+                    .getUser());
+            users.setStatus(entryPresence.getStatus());
+
+
             buddyList[i++] = bud;
         }
 

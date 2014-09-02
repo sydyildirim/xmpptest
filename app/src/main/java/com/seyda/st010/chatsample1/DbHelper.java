@@ -97,7 +97,7 @@ public class DbHelper extends SQLiteOpenHelper {
     /*
  * Creating a user
  */
-    public boolean createUser(User user, long[] tag_ids) {
+    public boolean createUser(User user) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
