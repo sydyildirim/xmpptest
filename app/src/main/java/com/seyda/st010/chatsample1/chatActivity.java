@@ -52,6 +52,9 @@ public class chatActivity extends Activity {
     private EditText textMessage;
     private ListView listview;
 
+    // Database Helper
+    DbHelper db;
+    Im im;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,9 +78,7 @@ public class chatActivity extends Activity {
         send.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 String to;
-                if (getIntent().getStringExtra("recipient")== null)
-                 to = "burcu@localhost"; //recipient.getText().toString();
-                else
+
                  to = getIntent().getStringExtra("recipient");
                 Log.e("rescipient= ", to);
 
@@ -94,6 +95,19 @@ public class chatActivity extends Activity {
                     messages.add(text);
                     setListAdapter();
                 }
+              //ADD IM TO DB
+                im = new Im();
+                im.setSender_userId(db.getUserId(USERNAME));
+                im.setReceiver_userId(db.getUserId(to));
+                im.setMsgText(text);
+
+                db = new DbHelper(chatActivity.this);
+                if(db.createIm(im))
+                    Log.e("DB", "database im kayıt oldu");
+                db.closeDB();
+
+              //  Log.e("DB username=", d);
+
 
 
             }

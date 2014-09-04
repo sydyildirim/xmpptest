@@ -2,12 +2,15 @@ package com.seyda.st010.chatsample1;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -28,7 +31,7 @@ public class DbHelper extends SQLiteOpenHelper {
     private static final String TABLE_USER = "userTable";
     private static final String TABLE_CONVERSATION = "conversationTable";
     private static final String TABLE_IM = "imTable";
-
+    private static final String TABLE_GROUP = "groupTable";
     // Common column names
    // private static final String KEY_ID = "id";
    // private static final String KEY_CREATED_AT = "created_at";
@@ -49,6 +52,13 @@ public class DbHelper extends SQLiteOpenHelper {
     // IM Table - column names
     private static final String KEY_IM_ID = "im_id";
     private static final String KEY_SEND = "im_send"; //if sended msg, true
+    private static final String KEY_MSG_TEXT = "im_msg_text";
+
+
+    // GROUP Table - column names
+
+    private static final String KEY_GROUP_MEMBER_USER_ID = "group_member_userId"; //if sended msg, true
+
 
     // Table Create Statements
     // user table create statement
@@ -59,15 +69,20 @@ public class DbHelper extends SQLiteOpenHelper {
 
     // conversation table create statement
     private static final String CREATE_TABLE_CONVERSATION = "CREATE TABLE " + TABLE_CONVERSATION
-            + "(" + KEY_CONVERSATION_ID + " INTEGER PRIMARY KEY," + KEY_USER_ID + " INTEGER FOREIGN KEY,"
+            + "(" + KEY_CONVERSATION_ID + " INTEGER PRIMARY KEY," + KEY_USER_ID + " INTEGER,"
             + KEY_CONVERSATION_LAST_SEEN + " DATETIME,"
             + KEY_CONVERSATION_NAME + " TEXT" + ")";
 
     // im table create statement
     private static final String CREATE_TABLE_IM = "CREATE TABLE "
             + TABLE_IM + "(" + KEY_IM_ID + " INTEGER PRIMARY KEY,"
-            + KEY_USER_ID + " INTEGER FOREIGN KEY," + KEY_CONVERSATION_ID + " INTEGER FOREIGN KEY,"
+            + KEY_USER_ID + " INTEGER," + KEY_CONVERSATION_ID +
+            " INTEGER," + KEY_MSG_TEXT + " TEXT,"
             + KEY_SEND + " BOOLEAN" + ")";
+
+    // GROUP table create statement
+    private static final String CREATE_TABLE_GROUP = "CREATE TABLE " + TABLE_GROUP
+            + "(" + KEY_CONVERSATION_ID + " INTEGER," + KEY_GROUP_MEMBER_USER_ID + " INTEGER," + ")";
 
     public DbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -79,6 +94,7 @@ public class DbHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_TABLE_USER);
         db.execSQL(CREATE_TABLE_CONVERSATION);
         db.execSQL(CREATE_TABLE_IM);
+        db.execSQL(CREATE_TABLE_GROUP);
     }
 
     @Override
@@ -87,9 +103,17 @@ public class DbHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_CONVERSATION);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_IM);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_GROUP);
 
         // create new tables
         onCreate(db);
+    }
+
+    // closing database
+    public void closeDB() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        if (db != null && db.isOpen())
+            db.close();
     }
 
     // ------------------------ "USER" table methods ----------------//
@@ -112,6 +136,71 @@ public class DbHelper extends SQLiteOpenHelper {
         return true;
     }
 
+    /**
+     * get ALL USERS
+     */
+    public ArrayList <User> getAllUsers() {
+        ArrayList<User> users = new ArrayList<User>();
+        String selectQuery = "SELECT  * FROM " + TABLE_USER;
+
+        Log.e(LOG, selectQuery);
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(selectQuery, null);
+
+        // looping through all rows and adding to list
+        if (c.moveToFirst()) {
+            do {
+
+                User user = new User();
+                user.setUser_id(c.getInt(c.getColumnIndex(KEY_USER_ID)));
+                user.setUsername((c.getString(c.getColumnIndex(KEY_USERNAME))));
+
+                // adding to todo list
+                users.add(user);
+            } while (c.moveToNext());
+        }
+
+        return users;
+    }
+
+    public User getUser(long user_id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String selectQuery = "SELECT  * FROM " + TABLE_USER + " WHERE "
+                + KEY_USER_ID + " = " + user_id;
+
+        Log.e(LOG, selectQuery);
+
+        Cursor c = db.rawQuery(selectQuery, null);
+
+        if (c != null)
+            c.moveToFirst();
+
+        User user = new User();
+        user.setUser_id(c.getInt(c.getColumnIndex(KEY_USER_ID)));
+        user.setUsername((c.getString(c.getColumnIndex(KEY_USERNAME))));
+
+
+        return user;
+    }
+
+    public long getUserId(String username) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String selectQuery = "SELECT  * FROM " + TABLE_USER + " WHERE "
+                + KEY_USERNAME + " = " + username;
+
+        Log.e(LOG, selectQuery);
+
+        Cursor c = db.rawQuery(selectQuery, null);
+
+        if (c != null)
+            c.moveToFirst();
+
+        return c.getInt(c.getColumnIndex(KEY_USER_ID));
+    }
+
     // ------------------------ "CONVERSATION" table methods ----------------//
 
     /*
@@ -130,12 +219,48 @@ public class DbHelper extends SQLiteOpenHelper {
         db.insert(TABLE_CONVERSATION, null, contentValues);
         return true;
     }
+
+    //get user's all conversations
+    public ArrayList <Conversation> getUserConversations(long userId) {
+        ArrayList<Conversation> conversations = new ArrayList<Conversation>();
+        String selectQuery = "SELECT  * FROM " + TABLE_GROUP + " WHERE "
+                + KEY_GROUP_MEMBER_USER_ID + " = " + userId;
+
+        Log.e(LOG, selectQuery);
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(selectQuery, null);
+
+
+
+        // looping through all rows and adding to list
+        if (c.moveToFirst()) {
+            do {
+
+                Conversation conversation = new Conversation();
+                conversation.setConversationId(c.getInt(c.getColumnIndex(KEY_CONVERSATION_ID)));
+                //kontrol et
+                String selectQuery1 = "SELECT  * FROM " + TABLE_CONVERSATION + " WHERE "
+                        + KEY_CONVERSATION_ID + " = " + conversation.getConversationId();
+
+                Cursor c1 = db.rawQuery(selectQuery1, null);
+                conversation.setConversationName(c1.getString(c1.getColumnIndex(KEY_CONVERSATION_NAME)));
+               //conversation.setLast_seen(c1.getDate(c1.getColumnIndex(KEY_CONVERSATION_LAST_SEEN)));
+
+                // adding to im list
+                conversations.add(conversation);
+            } while (c.moveToNext());
+        }
+
+        return conversations;
+    }
+
     // ------------------------ "IM" table methods ----------------//
 
     /*
 * Creating a im
 */
-    public boolean createIm(Im im, long[] tag_ids) {
+    public boolean createIm(Im im) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
@@ -143,9 +268,54 @@ public class DbHelper extends SQLiteOpenHelper {
         contentValues.put(KEY_USER_ID, im.getUserId());
         contentValues.put(KEY_CONVERSATION_ID, im.getConversationId());
         contentValues.put(KEY_SEND, im.getSend());
-
+        contentValues.put(KEY_MSG_TEXT, im.getMsgText());
 
         db.insert(TABLE_IM, null, contentValues);
         return true;
     }
+
+//get conversation's all ims
+    public ArrayList <Im> getConversationIms(long conversationId) {
+        ArrayList<Im> ims = new ArrayList<Im>();
+        String selectQuery = "SELECT  * FROM " + TABLE_IM + " WHERE "
+                + KEY_CONVERSATION_ID + " = " + conversationId;
+
+        Log.e(LOG, selectQuery);
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(selectQuery, null);
+
+        // looping through all rows and adding to list
+        if (c.moveToFirst()) {
+            do {
+
+                Im im = new Im();
+                im.setMsgText(c.getString(c.getColumnIndex(KEY_MSG_TEXT)));
+
+                // adding to im list
+                ims.add(im);
+            } while (c.moveToNext());
+        }
+
+        return ims;
+    }
+
+    // ------------------------ "GROUP" table methods ----------------//
+
+    /*
+* Creating a GROUP
+*/
+    public boolean createGroup(Group group) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+
+        contentValues.put(KEY_CONVERSATION_ID, group.getConversationId());
+        contentValues.put(KEY_GROUP_MEMBER_USER_ID, group.getGroupMemberUserId());
+
+        db.insert(TABLE_GROUP, null, contentValues);
+        return true;
+    }
+
+
 }

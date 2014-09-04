@@ -1,14 +1,25 @@
 package com.seyda.st010.chatsample1;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.ListView;
 
 import org.jivesoftware.smack.XMPPException;
+
+import java.util.ArrayList;
+import java.util.Objects;
 
 
 public class ChatListActivity extends Activity {
@@ -17,9 +28,16 @@ public class ChatListActivity extends Activity {
     public ServerConnection connect;
     SharedPreferences sharedpreferences;
     public static final String MyPREFERENCES = "MyPrefs" ;
+    // Database Helper
+    DbHelper db;
+    Conversation conversation;
+    ArrayList<Conversation> conversations;
+   // static Conversation[] conversationList;
 
-
-
+    private ArrayList<String> conversationNames = new ArrayList<String>();
+    private Handler mHandler = new Handler();
+    private ListView listview;
+    ArrayAdapter<String> adapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +62,54 @@ public class ChatListActivity extends Activity {
             });
             t.start();
 
+        //get userId
+        long userId = db.getUserId(USERNAME);
+        //GET User's CONVERSATIONS
+        conversations = db.getUserConversations(userId);
+        if(!conversations.isEmpty()){
+
+
+            final ConversationAdapter adapter = new ConversationAdapter(this, conversations);
+            listview = (ListView) findViewById(R.id.conversationList);
+            listview.setAdapter(adapter);
+            listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Intent intent = new Intent(ChatListActivity.this, chatActivity.class);
+                    intent.putExtra("conversationId", adapter.getItem(position).getConversationId()); //jid
+                    startActivity(intent);
+                }
+            });
+
+         /*   for(int i=0; i<conversations.size(); i++){
+                conversationNames.add(conversations.get(i).getConversationName());
+                conversationNames.add(Objects.toString(conversations.get(i).getGroupId(), null));
+            }
+
+            adapter = new ArrayAdapter<String>(this,
+                    R.layout.list, conversationNames);
+            mHandler.post(new Runnable() {
+                public void run() {
+                    setListAdapter();
+                }
+            });
+            //burasını düzelt
+
+
+            listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Intent intent = new Intent(ChatListActivity.this, chatActivity.class);
+                    intent.putExtra("recipient", adapter.getItem(position).); //jid
+                    startActivity(intent);
+                }
+            });
+            */
+        }
+
+    }
+    class ConversationAdapter extends ArrayAdapter<Conversation> {
+        public ConversationAdapter(Context context, ArrayList<Conversation> items) {
+            super(context, R.layout.buddy, items);
+        }
     }
 
 

@@ -6,6 +6,16 @@ package com.seyda.st010.chatsample1;
 public class User {
 
     private String username;
+    private long user_id;
+
+    public long getUser_id() {
+        return user_id;
+    }
+
+    public void setUser_id(int user_id) {
+        this.user_id = user_id;
+    }
+
     private String password;
     private String use_name;
     private String status;

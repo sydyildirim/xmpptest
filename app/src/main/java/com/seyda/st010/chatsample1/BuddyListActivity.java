@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,6 +29,8 @@ import java.util.Collection;
 
 
 public class BuddyListActivity extends Activity {
+    // Database Helper
+    DbHelper db;
     ListView list;
     Roster roster;
     static Buddy[] buddyList;
@@ -67,15 +70,32 @@ public class BuddyListActivity extends Activity {
             }
 
             //ADD BUDDY TO DB
-            users.setUsername(entry.getUser());
-            Presence entryPresence = roster.getPresence(entry
-                    .getUser());
-            users.setStatus(entryPresence.getStatus());
+            users = new User();
+            users.setUsername(bud.jid);
+            Log.e("DB username=", users.getUsername());
+            Presence entryPresence = roster.getPresence(bud.jid);
+          //  users.setStatus(entryPresence.getStatus());
 
+         //   Log.e("DB status=", users.getStatus());
+             db = new DbHelper(BuddyListActivity.this);
+            if(db.createUser(users))
+                Log.e("DB", "database kayıt oldu");
 
             buddyList[i++] = bud;
         }
 
+        User u= new User();
+        u = db.getUser(2);
+
+        Log.e("2. kayıtlı user username=", u.getUsername());
+        ArrayList<User> allusers = new ArrayList<User>();
+        allusers= db.getAllUsers();
+
+        for ( i = 0; i < allusers.size(); i++) {
+            String item = allusers.get(i).getUsername();
+        Log.e("Item ", item);
+    }
+        db.closeDB();
 
         final BuddyAdapter adapter = new BuddyAdapter(this, buddies);
         list = (ListView) findViewById(R.id.buddiesList);

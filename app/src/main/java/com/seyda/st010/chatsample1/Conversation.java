@@ -9,10 +9,27 @@ import java.util.Locale;
  * Created by st010 on 02.09.2014.
  */
 public class Conversation {
-
+    private long conversationId;
     private String conversationName;
-    private String userId;
+    private long userId;
     private Date last_seen;
+    private long groupId;
+
+    public long getConversationId() {
+        return conversationId;
+    }
+
+    public void setConversationId(long conversationId) {
+        this.conversationId = conversationId;
+    }
+
+    public long getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(long groupId) {
+        this.groupId = groupId;
+    }
 
     public String getConversationName() {
         return conversationName;
@@ -22,11 +39,11 @@ public class Conversation {
         this.conversationName = conversationName;
     }
 
-    public String getUserId() {
+    public long getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(long userId) {
         this.userId = userId;
     }
 
