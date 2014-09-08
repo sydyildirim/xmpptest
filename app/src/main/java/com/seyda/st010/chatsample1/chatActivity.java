@@ -99,6 +99,7 @@ public class chatActivity extends Activity {
                 im = new Im();
                 im.setSender_userId(db.getUserId(USERNAME));
                 im.setReceiver_userId(db.getUserId(to));
+                im.setConversationId(getIntent().getLongExtra("conversationId",0));
                 im.setMsgText(text);
 
                 db = new DbHelper(chatActivity.this);

@@ -3,6 +3,7 @@ package com.seyda.st010.chatsample1;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.provider.ProviderManager;
+import org.jivesoftware.smackx.packet.LastActivity;
 import org.jivesoftware.smackx.packet.VCard;
 import org.jivesoftware.smackx.provider.VCardProvider;
 
@@ -35,6 +37,13 @@ public class BuddyListActivity extends Activity {
     Roster roster;
     static Buddy[] buddyList;
     User users;
+    Conversation conversation;
+    Group group;
+    ArrayList<Group> groups;
+
+    SharedPreferences sharedpreferences;
+    public static final String MyPREFERENCES = "MyPrefs" ;
+
     public void onCreate(Bundle b) {
         super.onCreate(b);
         setContentView(R.layout.activity_buddy_list);
@@ -44,6 +53,7 @@ public class BuddyListActivity extends Activity {
         //roster = AsmackTestingActivity.xmpp.getRoster();
         ArrayList<Buddy> buddies = new ArrayList<Buddy>();
         //Collection<RosterEntry> entries = roster.getEntries();
+
         buddyList = new Buddy[entries.size()];
         ProviderManager.getInstance().addIQProvider("vCard", "vcard-temp", new VCardProvider());
         Buddy bud = null;
@@ -102,8 +112,27 @@ public class BuddyListActivity extends Activity {
         list.setAdapter(adapter);
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                //if conversation does not exist for
+                conversation = new Conversation();
+                conversation.setConversationId(db.getLastConversationId()+1);
+                db.createConversation(conversation);
+                groups = new ArrayList<Group>();
+                group = new Group();
+                group.setConversationId(conversation.getConversationId());
+                String recipient = adapter.getItem(position).jid;
+                group.setGroupMemberUserId(db.getUserId(recipient));
+                groups.add(group);
+                sharedpreferences = getSharedPreferences(MyPREFERENCES, SplashActivity.MODE_PRIVATE);
+
+                group.setGroupMemberUserId(db.getUserId(sharedpreferences.getString("username","")));
+                groups.add(group);
+                for(int i=0; i<groups.size(); i++)
+                    db.createGroup(groups.get(i));
+
                 Intent intent = new Intent(BuddyListActivity.this, chatActivity.class);
                 intent.putExtra("recipient", adapter.getItem(position).jid); //jid
+                intent.putExtra("conversationId", conversation.getConversationId());
                 startActivity(intent);
             }
         });

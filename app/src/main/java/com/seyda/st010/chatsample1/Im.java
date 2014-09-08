@@ -11,6 +11,7 @@ public class Im {
     private long conversationId;
     private String msgText;
 
+
     public String getMsgText() {
         return msgText;
     }
@@ -19,7 +20,6 @@ public class Im {
         this.msgText = msgText;
     }
 
-    private Boolean send;
 
     public long getReceiver_userId() {
         return receiver_userId;
@@ -62,11 +62,5 @@ public class Im {
         this.sender_userId = sender_userId;
     }
 
-    public Boolean getSend() {
-        return send;
-    }
 
-    public void setSend(Boolean send) {
-        this.send = send;
-    }
 }

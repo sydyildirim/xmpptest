@@ -5,14 +5,19 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import java.util.Objects;
 
 
 public class SplashActivity extends Activity {
 
     SharedPreferences sharedpreferences;
     String userName;
+
+    User user;
 
     public static final String MyPREFERENCES = "MyPrefs" ;
 
@@ -27,7 +32,7 @@ public class SplashActivity extends Activity {
     }
 
     /**
-     * Async Task to make http call
+     * Async Task
      */
     private class PrefetchData extends AsyncTask<String, Integer, String> {
 
@@ -49,24 +54,25 @@ public class SplashActivity extends Activity {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            // After completing http call
-            // will close this activity and lauch main activity
+
 
              ServerConnection connect = new ServerConnection("217.78.110.158",5222,"localhost");
-            //connect.connect();
 
+            // if not login
             if (result == null) {
                 Intent startLoginActivity = new Intent(SplashActivity.this, LoginActivity.class);
                 startActivity(startLoginActivity);
+
             }else {
 
-                Intent startChatActivity = new Intent(SplashActivity.this, ChatListActivity.class);
-                startChatActivity.putExtra("username", sharedpreferences.getString("username", ""));
-                startChatActivity.putExtra("userPassword", sharedpreferences.getString("userPassword", ""));
+                Intent startChatListActivity = new Intent(SplashActivity.this, ChatListActivity.class);
+                startChatListActivity.putExtra("username", sharedpreferences.getString("username", ""));
+                startChatListActivity.putExtra("userPassword", sharedpreferences.getString("userPassword", ""));
 
                 //check if user already login
                 connect.connect(sharedpreferences.getString("username", ""),sharedpreferences.getString("userPassword", ""));
-                startActivity(startChatActivity);
+
+                startActivity(startChatListActivity);
             }
 
             // close this activity

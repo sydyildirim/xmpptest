@@ -82,7 +82,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
     // GROUP table create statement
     private static final String CREATE_TABLE_GROUP = "CREATE TABLE " + TABLE_GROUP
-            + "(" + KEY_CONVERSATION_ID + " INTEGER," + KEY_GROUP_MEMBER_USER_ID + " INTEGER," + ")";
+            + "(" + KEY_CONVERSATION_ID + " INTEGER," + KEY_GROUP_MEMBER_USER_ID + " INTEGER" + ")";
 
     public DbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -189,7 +189,7 @@ public class DbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         String selectQuery = "SELECT  * FROM " + TABLE_USER + " WHERE "
-                + KEY_USERNAME + " = " + username;
+                + KEY_USERNAME + " = " + "'"+ username+ "'";
 
         Log.e(LOG, selectQuery);
 
@@ -206,7 +206,7 @@ public class DbHelper extends SQLiteOpenHelper {
     /*
 * Creating a conversation
 */
-    public boolean createConversation(Conversation conversation, long[] tag_ids) {
+    public boolean createConversation(Conversation conversation) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
@@ -254,6 +254,43 @@ public class DbHelper extends SQLiteOpenHelper {
 
         return conversations;
     }
+//if conversation already exists return its conversation_id
+ /*   public long ifConversationExists(long[] userIds) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        long conId;
+        for (long user_id : userIds) {
+
+            String selectQuery = "SELECT  * FROM " + TABLE_GROUP + " WHERE "
+                    + KEY_GROUP_MEMBER_USER_ID + " = " + user_id;
+
+            Log.e(LOG, selectQuery);
+            Cursor c = db.rawQuery(selectQuery, null);
+            if (c != null)
+                c.moveToFirst();
+                conId=c.getInt(c.getColumnIndex(KEY_CONVERSATION_ID));
+            else
+
+        }
+
+        return c.getInt(c.getColumnIndex(KEY_USER_ID));
+
+    }*/
+    public long getLastConversationId(){
+        SQLiteDatabase db = this.getReadableDatabase();
+        long conId;
+
+        String selectQuery = "SELECT  * FROM " + TABLE_CONVERSATION + " ORDER BY "
+                + KEY_CONVERSATION_ID + " DESC limit 1";
+
+        Log.e(LOG, selectQuery);
+        Cursor c = db.rawQuery(selectQuery, null);
+        if (c != null) {
+            c.moveToFirst();
+            conId = c.getInt(c.getColumnIndex(KEY_CONVERSATION_ID));
+            return conId;
+        }
+        return 0;
+    }
 
     // ------------------------ "IM" table methods ----------------//
 
@@ -267,7 +304,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
         contentValues.put(KEY_USER_ID, im.getUserId());
         contentValues.put(KEY_CONVERSATION_ID, im.getConversationId());
-        contentValues.put(KEY_SEND, im.getSend());
+
         contentValues.put(KEY_MSG_TEXT, im.getMsgText());
 
         db.insert(TABLE_IM, null, contentValues);

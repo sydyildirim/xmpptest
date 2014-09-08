@@ -41,7 +41,8 @@ public class LoginActivity extends Activity {
     private EditText userName;
     private EditText password;
     public static final String MyPREFERENCES = "MyPrefs" ;
-
+    User user;
+    public static DbHelper db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +70,13 @@ public class LoginActivity extends Activity {
 
                 Log.i("username= ", sharedpreferences.getString("username",""));
                 Log.i("password= ", sharedpreferences.getString("userPassword",""));
+                user = new User();
+                user.setUsername(sharedpreferences.getString("username",null));
+                db = new DbHelper(LoginActivity.this);
+                db.createUser(user);
+                //  db.closeDB();
+                long userId = db.getUserId(user.getUsername());
+                Log.e("splash user id=",  " "+userId);
                 Intent activityChangeIntent = new Intent(LoginActivity.this, ChatListActivity.class);
                 activityChangeIntent.putExtra("username",username);
                 activityChangeIntent.putExtra("userPassword",userPassword);

@@ -7,6 +7,10 @@ public class User {
 
     private String username;
     private long user_id;
+    private String password;
+    private String use_name;
+    private String status;
+    private String type;
 
     public long getUser_id() {
         return user_id;
@@ -16,10 +20,7 @@ public class User {
         this.user_id = user_id;
     }
 
-    private String password;
-    private String use_name;
-    private String status;
-    private String type;
+
 
     public String getType() {
         return type;

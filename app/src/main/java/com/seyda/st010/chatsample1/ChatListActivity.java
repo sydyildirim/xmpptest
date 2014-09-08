@@ -11,10 +11,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import org.jivesoftware.smack.XMPPException;
 
@@ -63,7 +66,9 @@ public class ChatListActivity extends Activity {
             t.start();
 
         //get userId
+        db = LoginActivity.db;
         long userId = db.getUserId(USERNAME);
+        Log.e("chatlist user id=",""+db.getUserId(USERNAME));
         //GET User's CONVERSATIONS
         conversations = db.getUserConversations(userId);
         if(!conversations.isEmpty()){
@@ -106,13 +111,38 @@ public class ChatListActivity extends Activity {
         }
 
     }
+/*
+    @Override
+    public View getView(int position, View convertView, ViewGroup parentView) {
+        Conversation con = getItem(position);
+        ViewHolder holder = null;
+        if (convertView == null) {
+            convertView = getLayoutInflater().inflate(R.layout.conversation, null);
+
+            holder = new ViewHolder();
+            holder.name = (TextView) convertView.findViewById(R.id.conName);
+            holder.thumb = (ImageView) convertView.findViewById(R.id.conImg);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+
+        holder.name.setText(bud.name);
+        holder.thumb.setImageBitmap(bud.img);
+
+        return convertView;
+    }
+    */
     class ConversationAdapter extends ArrayAdapter<Conversation> {
         public ConversationAdapter(Context context, ArrayList<Conversation> items) {
             super(context, R.layout.buddy, items);
         }
     }
 
-
+    class ViewHolder {
+        ImageView thumb;
+        TextView name;
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
