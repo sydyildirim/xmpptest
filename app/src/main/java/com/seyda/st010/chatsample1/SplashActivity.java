@@ -69,7 +69,7 @@ public class SplashActivity extends Activity {
                 startChatListActivity.putExtra("username", sharedpreferences.getString("username", ""));
                 startChatListActivity.putExtra("userPassword", sharedpreferences.getString("userPassword", ""));
 
-                //check if user already login
+                //no need to check if user already login
                 connect.connect(sharedpreferences.getString("username", ""),sharedpreferences.getString("userPassword", ""));
 
                 startActivity(startChatListActivity);

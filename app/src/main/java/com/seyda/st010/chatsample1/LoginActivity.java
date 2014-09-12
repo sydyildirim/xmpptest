@@ -52,7 +52,6 @@ public class LoginActivity extends Activity {
         password = (EditText) this.findViewById(R.id.password);
 
 
-
         final Button button = (Button) findViewById(R.id.sign_in_button);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -70,20 +69,19 @@ public class LoginActivity extends Activity {
 
                 Log.i("username= ", sharedpreferences.getString("username",""));
                 Log.i("password= ", sharedpreferences.getString("userPassword",""));
+                //deneme save username
                 user = new User();
                 user.setUsername(sharedpreferences.getString("username",null));
                 db = new DbHelper(LoginActivity.this);
                 db.createUser(user);
                 //  db.closeDB();
                 long userId = db.getUserId(user.getUsername());
-                Log.e("splash user id=",  " "+userId);
+                Log.e("login user id=",  " "+userId);
                 Intent activityChangeIntent = new Intent(LoginActivity.this, ChatListActivity.class);
                 activityChangeIntent.putExtra("username",username);
                 activityChangeIntent.putExtra("userPassword",userPassword);
                 activityChangeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 activityChangeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                //YENİ
-
 
                 startActivity(activityChangeIntent);
             }

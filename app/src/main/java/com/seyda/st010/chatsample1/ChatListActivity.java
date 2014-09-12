@@ -66,13 +66,13 @@ public class ChatListActivity extends Activity {
             t.start();
 
         //get userId
-        db = LoginActivity.db;
+        //db = LoginActivity.db;
+        db= new DbHelper(this);
         long userId = db.getUserId(USERNAME);
         Log.e("chatlist user id=",""+db.getUserId(USERNAME));
         //GET User's CONVERSATIONS
         conversations = db.getUserConversations(userId);
         if(!conversations.isEmpty()){
-
 
             final ConversationAdapter adapter = new ConversationAdapter(this, conversations);
             listview = (ListView) findViewById(R.id.conversationList);
@@ -81,6 +81,7 @@ public class ChatListActivity extends Activity {
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     Intent intent = new Intent(ChatListActivity.this, chatActivity.class);
                     intent.putExtra("conversationId", adapter.getItem(position).getConversationId()); //jid
+                  Log.e("chatList conId="," "+adapter.getItem(position).getConversationId());
                     startActivity(intent);
                 }
             });
@@ -111,31 +112,33 @@ public class ChatListActivity extends Activity {
         }
 
     }
-/*
-    @Override
-    public View getView(int position, View convertView, ViewGroup parentView) {
-        Conversation con = getItem(position);
-        ViewHolder holder = null;
-        if (convertView == null) {
-            convertView = getLayoutInflater().inflate(R.layout.conversation, null);
 
-            holder = new ViewHolder();
-            holder.name = (TextView) convertView.findViewById(R.id.conName);
-            holder.thumb = (ImageView) convertView.findViewById(R.id.conImg);
-            convertView.setTag(holder);
-        } else {
-            holder = (ViewHolder) convertView.getTag();
-        }
 
-        holder.name.setText(bud.name);
-        holder.thumb.setImageBitmap(bud.img);
 
-        return convertView;
-    }
-    */
     class ConversationAdapter extends ArrayAdapter<Conversation> {
         public ConversationAdapter(Context context, ArrayList<Conversation> items) {
-            super(context, R.layout.buddy, items);
+            super(context, R.layout.list, items);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parentView) {
+            Conversation con = getItem(position);
+            ViewHolder holder = null;
+            if (convertView == null) {
+                convertView = getLayoutInflater().inflate(R.layout.conversation, null);
+
+                holder = new ViewHolder();
+                holder.name = (TextView) convertView.findViewById(R.id.conName);
+                // holder.thumb = (ImageView) convertView.findViewById(R.id.conImg);
+                convertView.setTag(holder);
+            } else {
+                holder = (ViewHolder) convertView.getTag();
+            }
+
+            holder.name.setText(con.getConversationName());
+            // holder.thumb.setImageBitmap(bud.img);
+
+            return convertView;
         }
     }
 

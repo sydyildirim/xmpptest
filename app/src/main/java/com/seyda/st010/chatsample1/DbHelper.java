@@ -51,7 +51,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
     // IM Table - column names
     private static final String KEY_IM_ID = "im_id";
-    private static final String KEY_SEND = "im_send"; //if sended msg, true
+    //private static final String KEY_SEND = "im_send"; //if sended msg, true
     private static final String KEY_MSG_TEXT = "im_msg_text";
 
 
@@ -77,8 +77,8 @@ public class DbHelper extends SQLiteOpenHelper {
     private static final String CREATE_TABLE_IM = "CREATE TABLE "
             + TABLE_IM + "(" + KEY_IM_ID + " INTEGER PRIMARY KEY,"
             + KEY_USER_ID + " INTEGER," + KEY_CONVERSATION_ID +
-            " INTEGER," + KEY_MSG_TEXT + " TEXT,"
-            + KEY_SEND + " BOOLEAN" + ")";
+            " INTEGER," + KEY_MSG_TEXT + " TEXT"
+            + ")";
 
     // GROUP table create statement
     private static final String CREATE_TABLE_GROUP = "CREATE TABLE " + TABLE_GROUP
@@ -244,10 +244,25 @@ public class DbHelper extends SQLiteOpenHelper {
                         + KEY_CONVERSATION_ID + " = " + conversation.getConversationId();
 
                 Cursor c1 = db.rawQuery(selectQuery1, null);
-                conversation.setConversationName(c1.getString(c1.getColumnIndex(KEY_CONVERSATION_NAME)));
-               //conversation.setLast_seen(c1.getDate(c1.getColumnIndex(KEY_CONVERSATION_LAST_SEEN)));
+                String conName;
+                if (c1.moveToFirst()) {
 
-                // adding to im list
+
+                        if(c1.getCount()!=0) {
+                            if (c1.getString(c1.getColumnIndex(KEY_CONVERSATION_NAME)) == null)
+                                conName = "noName";
+                            else
+                                conName = c1.getString(c1.getColumnIndex(KEY_CONVERSATION_NAME));
+                        }
+                        else
+                            conName = "noName";
+                        conversation.setConversationName(conName);
+                        //conversation.setLast_seen(c1.getDate(c1.getColumnIndex(KEY_CONVERSATION_LAST_SEEN)));
+
+                        // adding to im list
+
+
+                }
                 conversations.add(conversation);
             } while (c.moveToNext());
         }
@@ -284,6 +299,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
         Log.e(LOG, selectQuery);
         Cursor c = db.rawQuery(selectQuery, null);
+        if(c.getCount()!=0)
         if (c != null) {
             c.moveToFirst();
             conId = c.getInt(c.getColumnIndex(KEY_CONVERSATION_ID));
@@ -328,7 +344,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
                 Im im = new Im();
                 im.setMsgText(c.getString(c.getColumnIndex(KEY_MSG_TEXT)));
-
+                im.setSender_userId(c.getInt(c.getColumnIndex(KEY_USER_ID)));
                 // adding to im list
                 ims.add(im);
             } while (c.moveToNext());
@@ -353,6 +369,29 @@ public class DbHelper extends SQLiteOpenHelper {
         db.insert(TABLE_GROUP, null, contentValues);
         return true;
     }
+    public ArrayList <User> getMessageReceivers(long conversationId) {
+        ArrayList<User> users = new ArrayList<User>();
+        String selectQuery = "SELECT  * FROM " + TABLE_GROUP + " WHERE "
+                + KEY_CONVERSATION_ID + " = " + conversationId;
 
+        Log.e(LOG, selectQuery);
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(selectQuery, null);
+
+        // looping through all rows and adding to list
+        if (c.moveToFirst()) {
+            do {
+
+                User user = new User();
+                user.setUser_id(c.getInt(c.getColumnIndex(KEY_GROUP_MEMBER_USER_ID)));
+
+                // adding to im list
+                users.add(user);
+            } while (c.moveToNext());
+        }
+
+        return users;
+    }
 
 }

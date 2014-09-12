@@ -39,10 +39,12 @@ public class chatActivity extends Activity {
     public static final String HOST = "217.78.110.158";
     public static final int PORT = 5222;
     public static final String SERVICE = "localhost";
+
     public String USERNAME;
     public String PASSWORD;
     SharedPreferences sharedpreferences;
     public static final String MyPREFERENCES = "MyPrefs" ;
+    private long conversationId;
 
     public static XMPPConnection connection;
     private ArrayList<String> messages = new ArrayList<String>();
@@ -51,7 +53,7 @@ public class chatActivity extends Activity {
     //private EditText recipient;
     private EditText textMessage;
     private ListView listview;
-
+    private ArrayList<Im> ims;
     // Database Helper
     DbHelper db;
     Im im;
@@ -60,17 +62,30 @@ public class chatActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-
+        connection = ServerConnection.connection;
         sharedpreferences = getSharedPreferences(MyPREFERENCES, SplashActivity.MODE_PRIVATE);
 
         USERNAME = sharedpreferences.getString("username","");
-        PASSWORD =  sharedpreferences.getString("userPassword","");
+        PASSWORD = sharedpreferences.getString("userPassword","");
        // USERNAME = getIntent().getStringExtra("username");
        // PASSWORD = getIntent().getStringExtra("userPassword");
-
+        conversationId= getIntent().getLongExtra("conversationId",0);
+        Log.e("chat act con_id=", ""+conversationId);
         //recipient = (EditText) this.findViewById(R.id.toET);
         textMessage = (EditText) this.findViewById(R.id.editText);
         listview = (ListView) this.findViewById(R.id.listView);
+        ims = new ArrayList<Im>();
+        db = new DbHelper(chatActivity.this);
+        ims = db.getConversationIms(conversationId);
+
+        if(!ims.isEmpty()){
+
+            for(int i=0; i<ims.size(); i++) {
+                User sender= db.getUser(ims.get(i).getSender_userId());
+                messages.add(sender.getUsername()+ ":"); //sender id
+                messages.add(ims.get(i).getMsgText());
+            }
+        }
         setListAdapter();
 
         // Set a listener to send a chat text message
@@ -78,8 +93,21 @@ public class chatActivity extends Activity {
         send.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 String to;
+                ArrayList<String> toS = new ArrayList<String>();
+                //conversationId den im, im den rescipient çek
+                ArrayList<User> resceivers =db.getMessageReceivers(conversationId);
+                if(!resceivers.isEmpty()){ //şuan group yok
+                    for(int i=0; i<resceivers.size() ; i++) {
+                    String tempoTo = db.getUser(resceivers.get(i).getUser_id()).getUsername();
+                        if(tempoTo.compareTo(USERNAME)!=0)
+                            toS.add(tempoTo);
+                    }
+                }
 
-                 to = getIntent().getStringExtra("recipient");
+                to = getIntent().getStringExtra("recipient"); //BUDDYLİST DEN SEÇERSE
+                if(to==null)
+                    to=toS.get(0);// şuan grup chat yok tek alıcı deneme
+
                 Log.e("rescipient= ", to);
 
                 String text = textMessage.getText().toString();
@@ -98,11 +126,12 @@ public class chatActivity extends Activity {
               //ADD IM TO DB
                 im = new Im();
                 im.setSender_userId(db.getUserId(USERNAME));
+                im.setUserId(db.getUserId(USERNAME));
                 im.setReceiver_userId(db.getUserId(to));
-                im.setConversationId(getIntent().getLongExtra("conversationId",0));
+                im.setConversationId(conversationId);
                 im.setMsgText(text);
 
-                db = new DbHelper(chatActivity.this);
+
                 if(db.createIm(im))
                     Log.e("DB", "database im kayıt oldu");
                 db.closeDB();
@@ -263,4 +292,5 @@ public class chatActivity extends Activity {
         t.start();
         mDiaog.show();
     }
+
 }

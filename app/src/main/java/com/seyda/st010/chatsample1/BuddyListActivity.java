@@ -122,11 +122,14 @@ public class BuddyListActivity extends Activity {
                 group.setConversationId(conversation.getConversationId());
                 String recipient = adapter.getItem(position).jid;
                 group.setGroupMemberUserId(db.getUserId(recipient));
-                groups.add(group);
-                sharedpreferences = getSharedPreferences(MyPREFERENCES, SplashActivity.MODE_PRIVATE);
 
-                group.setGroupMemberUserId(db.getUserId(sharedpreferences.getString("username","")));
                 groups.add(group);
+                Group group2 = new Group();
+
+                sharedpreferences = getSharedPreferences(MyPREFERENCES, SplashActivity.MODE_PRIVATE);
+                group2.setConversationId(conversation.getConversationId());
+                group2.setGroupMemberUserId(db.getUserId(sharedpreferences.getString("username","")));
+                groups.add(group2);
                 for(int i=0; i<groups.size(); i++)
                     db.createGroup(groups.get(i));
 
